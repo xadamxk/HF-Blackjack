@@ -2,19 +2,19 @@
 // @name       HF BlackJack
 // @author xadamxk
 // @namespace  https://github.com/xadamxk/HF-Scripts
-// @version    1.0.0
+// @version    1.0.1
 // @description Does its best to win HF BlackJack
 // @require https://code.jquery.com/jquery-3.1.1.js
 // @match      *://hackforums.net/blackjack.php
-// @updateURL
-// @downloadURL
-// @iconURL https://raw.githubusercontent.com/xadamxk/HF-Blackjack/master/scripticon.jpg
+// @updateURL https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js
+// @downloadURL https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js
+// @iconURL https://github.com/xadamxk/HF-Blackjack/blob/master/scripticon.png?raw=true
 // @copyright  2018+
 // @grant   GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
-// version 1.0.1: Public Release
-// version 1.0.0: Beta Release
+// version 1.0.1: Public Release (UpdateURL, DownloadURL, iconURL)
+// version 1.0.0: Initial Release
 // ------------------------------ Dev Notes -----------------------------
 // Split logic does not exist yet!
 // ------------------------------ SETTINGS ------------------------------
