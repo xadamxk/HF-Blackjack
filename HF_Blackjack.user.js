@@ -1,18 +1,20 @@
 // ==UserScript==
-// @name       HF BlackJack
-// @author xadamxk
-// @namespace  https://github.com/xadamxk/HF-Scripts
-// @version    1.0.2
-// @description Does its best to win HF BlackJack
-// @require https://code.jquery.com/jquery-3.1.1.js
-// @match      *://hackforums.net/blackjack.php
-// @updateURL https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js
-// @downloadURL https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js
-// @iconURL https://github.com/xadamxk/HF-Blackjack/blob/master/scripticon.png?raw=true
-// @copyright  2018+
-// @grant   GM_xmlhttpRequest
+// @name          HF BlackJack
+// @author        xadamxk
+// @namespace     https://github.com/xadamxk/HF-Scripts
+// @version       1.0.3
+// @description   Does its best to win HF BlackJack
+// @require       https://code.jquery.com/jquery-3.1.1.js
+// @match         *://hackforums.net/blackjack.php
+// @connect       https://blackjackdoc.com/calculator/advisor.json.php
+// @updateURL     https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js
+// @downloadURL   https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js
+// @iconURL       https://github.com/xadamxk/HF-Blackjack/blob/master/scripticon.png?raw=true
+// @copyright     2018+
+// @grant         GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
+// version 1.0.3: Added connect meta tag to mitigate CORS permissions
 // version 1.0.2: Start confirmation, script disclaimer, start button margin
 // version 1.0.1: Public Release (UpdateURL, DownloadURL, iconURL)
 // version 1.0.0: Initial Release
