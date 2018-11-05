@@ -2,7 +2,7 @@
 // @name       HF BlackJack
 // @author xadamxk
 // @namespace  https://github.com/xadamxk/HF-Scripts
-// @version    1.0.1
+// @version    1.0.2
 // @description Does its best to win HF BlackJack
 // @require https://code.jquery.com/jquery-3.1.1.js
 // @match      *://hackforums.net/blackjack.php
@@ -13,14 +13,15 @@
 // @grant   GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
+// version 1.0.2: Start confirmation, script disclaimer, start button margin
 // version 1.0.1: Public Release (UpdateURL, DownloadURL, iconURL)
 // version 1.0.0: Initial Release
 // ------------------------------ Dev Notes -----------------------------
 // Split logic does not exist yet!
 // ------------------------------ SETTINGS ------------------------------
 const wagerAmt = 2; // must be divisible by increment of 2, 10, 25, or 50
-const confirmEachGame = true; // prompt for each new game (false for games2play)
-const games2Play = 3; // how many games to play automatically
+const confirmEachGame = true; // prompt for each new game (false for gamesPerSession)
+const gamesPerSession = 3; // how many games to play automatically
 // ------------------------------- Script -------------------------------
 /* ========== DO NOT CHANGE ANYTHING BELOW THIS LINE ========== */
 /* Global Constants */
@@ -52,18 +53,21 @@ var newByteBalance;
 // Append stats
 $('strong:contains("Risk your Bytes for a chance to win more!")').parent().parent()
     .after($("<tr>").append($("<td>").addClass("trow1").text("New:").append($("<div>").text("-").attr("id","newBytesTotal"))))
-    .after($("<tr>").append($("<td>").addClass("trow1").text("Original:").append($("<div>").attr("id","originalBytesTotal"))));
+    .after($("<tr>").append($("<td>").addClass("trow1").text("Original:").append($("<div>").attr("id","originalBytesTotal"))))
+    .after($("<tr>")/*.append($("<td>")*/.css("color","red").text("HF Blackjack Userscript: USE AT YOUR OWN RISK!"));
 
 // Update original bytes
 initialOriginalBytes();
 
 // Append start button
 $('strong:contains("Risk your Bytes for a chance to win more!")')
-    .after($("<button>").attr("id","startBJBot").text("Start Bot").addClass({}));
+    .after($("<button>").attr("id","startBJBot").text("Start Bot").css("margin-left","10px"));
 
 // Button click event
 $( "#startBJBot" ).click(function() {
-    ajaxPostRequest(hfActionDealURL, dealHandBody, true);
+    if (confirm("Are you sure you want to start the script?")){
+        ajaxPostRequest(hfActionDealURL, dealHandBody, true);
+    }
 });
 
 /* Functions */
@@ -113,7 +117,7 @@ function startNextGame(){
                 ajaxPostRequest(hfActionDealURL, dealHandBody, true);
             }
         } else {
-            if (gamesPlayed < games2Play){
+            if (gamesPlayed < gamesPerSession){
                 gamesPlayed++;
                 console.clear();
                 ajaxPostRequest(hfActionDealURL, dealHandBody, true);
