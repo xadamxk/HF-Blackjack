@@ -3,7 +3,7 @@
 // @author        xadamxk
 // @namespace     https://github.com/xadamxk/HF-Scripts
 // @version       1.0.3
-// @description   Does its best to win HF BlackJack
+// @description   Improves your blackjack experience
 // @require       https://code.jquery.com/jquery-3.1.1.js
 // @match         *://hackforums.net/blackjack.php
 // @connect       blackjackdoc.com/calculator/advisor.json.php
