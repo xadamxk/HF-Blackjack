@@ -6,7 +6,8 @@
 // @description   Does its best to win HF BlackJack
 // @require       https://code.jquery.com/jquery-3.1.1.js
 // @match         *://hackforums.net/blackjack.php
-// @connect       https://blackjackdoc.com/calculator/advisor.json.php
+// @connect       blackjackdoc.com/calculator/advisor.json.php
+// @connect       blackjackdoc.com
 // @updateURL     https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js
 // @downloadURL   https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js
 // @iconURL       https://github.com/xadamxk/HF-Blackjack/blob/master/scripticon.png?raw=true
