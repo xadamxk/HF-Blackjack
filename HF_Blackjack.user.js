@@ -23,7 +23,6 @@
 // version 1.0.0: Initial Release
 // ------------------------------ Dev Notes -----------------------------
 // Split logic does not exist yet!
-// Figure out exception of standing and cannot read property 'outcome1' of undefined
 // ------------------------------ SETTINGS ------------------------------
 const wagerAmt = 2; // must be divisible by increment of 2, 10, 25, or 50
 const confirmEachGame = true; // prompt for each new game (false for gamesPerSession)
