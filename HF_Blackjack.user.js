@@ -2,7 +2,7 @@
 // @name          HF BlackJack
 // @author        xadamxk
 // @namespace     https://github.com/xadamxk/HF-Scripts
-// @version       1.1.0
+// @version       1.1.1
 // @description   Improves your blackjack experience
 // @require       https://code.jquery.com/jquery-3.1.1.js
 // @match         *://hackforums.net/blackjack.php
@@ -15,6 +15,7 @@
 // @grant         GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
+// version 1.1.1: Fixed throwing exceptions on Lose, Win, and Surrender
 // version 1.1.0: Added card hand, probability, best option, and result to UI
 // version 1.0.3: Added connect meta tag to mitigate CORS permissions
 // version 1.0.2: Start confirmation, script disclaimer, start button margin
@@ -98,7 +99,10 @@ function ajaxPostRequest(url, data, cont){
                     console.log("SINGLE GAME RESULT: "+getSingleGameResult(jsonObj));
                     if(getSingleGameResult(jsonObj) == "FOLD"
                        || getSingleGameResult(jsonObj) == "TIE"
-                       || getSingleGameResult(jsonObj) == "WIN-BLACKJACK"){
+                       || getSingleGameResult(jsonObj) == "WIN-BLACKJACK"
+                       || getSingleGameResult(jsonObj) == "WIN"
+                       || getSingleGameResult(jsonObj) == "LOSE"
+                       || getSingleGameResult(jsonObj) == "SURRENDER"){
                         setGameResult(getSingleGameResult(jsonObj));
                         startNextGame();
                     } else {
