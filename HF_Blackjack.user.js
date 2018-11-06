@@ -2,7 +2,7 @@
 // @name          HF BlackJack
 // @author        xadamxk
 // @namespace     https://github.com/xadamxk/HF-Scripts
-// @version       1.0.3
+// @version       1.1.0
 // @description   Improves your blackjack experience
 // @require       https://code.jquery.com/jquery-3.1.1.js
 // @match         *://hackforums.net/blackjack.php
@@ -15,12 +15,14 @@
 // @grant         GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
+// version 1.1.0: Added card hand, probability, best option, and result to UI
 // version 1.0.3: Added connect meta tag to mitigate CORS permissions
 // version 1.0.2: Start confirmation, script disclaimer, start button margin
 // version 1.0.1: Public Release (UpdateURL, DownloadURL, iconURL)
 // version 1.0.0: Initial Release
 // ------------------------------ Dev Notes -----------------------------
 // Split logic does not exist yet!
+// Figure out exception of standing and cannot read property 'outcome1' of undefined
 // ------------------------------ SETTINGS ------------------------------
 const wagerAmt = 2; // must be divisible by increment of 2, 10, 25, or 50
 const confirmEachGame = true; // prompt for each new game (false for gamesPerSession)
@@ -69,6 +71,7 @@ $('strong:contains("Risk your Bytes for a chance to win more!")')
 // Button click event
 $( "#startBJBot" ).click(function() {
     if (confirm("Are you sure you want to start the script?")){
+        setWagerTotal();
         ajaxPostRequest(hfActionDealURL, dealHandBody, true);
     }
 });
@@ -96,6 +99,7 @@ function ajaxPostRequest(url, data, cont){
                     if(getSingleGameResult(jsonObj) == "FOLD"
                        || getSingleGameResult(jsonObj) == "TIE"
                        || getSingleGameResult(jsonObj) == "WIN-BLACKJACK"){
+                        setGameResult(getSingleGameResult(jsonObj));
                         startNextGame();
                     } else {
                         crossOriginPostRequest(bjAdvisorURL,generateRawData(data));
@@ -104,6 +108,7 @@ function ajaxPostRequest(url, data, cont){
                     // UNEXPECTED RESULT?
                     //console.log("Result: "+getSingleGameResult(jsonObj));
                     console.log("Result: "+getSingleGameResult(jsonObj) + " ("+getSingleGamePayout(jsonObj)+")");
+                    setGameResult(getSingleGameResult(jsonObj));
                     startNextGame();
                 }
 
@@ -146,7 +151,10 @@ function crossOriginPostRequest(url, data){
         onload: function (response) {
             var jsonObj = jQuery.parseJSON(response.response);
             console.log("BEST OPTION: "+jsonObj.best);
-            console.log(getActionOdds(jsonObj));
+            setHandResult(jsonObj.best);
+            setOddsDisplay(getActionOdds(jsonObj));
+            // Set hand total value
+            $("#playerHand1").find(".cardsValueSign").attr("style","display:").text(jsonObj.sum.replace(/\D/g,''));
             // Desired Action - On HF
             if (jsonObj.best == "stand"){
                 ajaxPostRequest(hfActionStandURL, generateHFRawData(), false);
@@ -197,11 +205,13 @@ function getMyHand(json){
 }
 
 function parseHand(array){
+    var handArray = array;
+    saveHand(handArray);
     var handString = "";
     for (var arrayIndex = 0; arrayIndex < array.length; arrayIndex++) {
-        // Convert face cards to 10
         if (array[arrayIndex] !== "XX"){
             array[arrayIndex] = array[arrayIndex].replace(/\D/g,''); // Remove all letters from string
+            // Convert face cards to 10
             if (array[arrayIndex] == "11" || array[arrayIndex] == "12" || array[arrayIndex] == "13"){
                 array[arrayIndex] = "10";
             }
@@ -218,6 +228,33 @@ function parseHand(array){
         }
     }
     return handString;
+}
+
+function saveHand(handArray){
+    // Dealer Hand
+    if (jQuery.inArray( "XX",handArray) == 1){
+        setDealerHand(handArray);
+    } else {
+        setYourHand(handArray);
+    }
+}
+
+function setYourHand(array){
+    $("#playerHand1").find(".cardsContainer").empty();
+    // Set hand - cards
+    for (var i = 0; i < array.length; i++) {
+        // Sets hand card
+        $("#playerHand1").find(".cardsContainer").append(createCard(array[i], i));
+    }
+}
+
+function setDealerHand(array){
+    $("#dealerHand").find(".cardsContainer").empty();
+    // Set hand - cards
+    for (var i = 0; i < array.length; i++) {
+        // Sets hand card
+        $("#dealerHand").find(".cardsContainer").append(createCard(array[i], i));
+    }
 }
 
 function generateHFRawData(){
@@ -237,4 +274,49 @@ function generateRawData(json){
     + "&lateSurrender=" + lateSurrender;
 
     return rawDataString;
+}
+
+function setWagerTotal(){
+    $("#playerHand1").find(".betValueSign").attr("style","display:").text(wagerAmt);
+}
+
+function setGameResult(result){
+    $("#playerHand1").find(".handOutcomeSign").attr("style","display:").text(result);
+}
+
+function setHandResult(result){
+    $("#playerHand1").find(".cardsOutcomeSign").attr("style","display:").text(result);
+}
+
+function setOddsDisplay(array){
+    $("#rules > ul").empty();
+    for (var key in array) {
+        if (array.hasOwnProperty(key)) {
+            $("#rules > ul").append($("<li>").text(key + ": " + array[key]));
+        }
+    }
+}
+
+function getCardSuit(card){
+    return card.substr(card.length - 1);
+}
+
+function getCardValue(card){
+    return card.substr(0, card.length - 1);
+}
+
+function createCard(card, index){
+    var offset = calcOffset(card);
+    return '<div class="card" style="background-position: ' + offset.x + 'px ' + offset.y +
+        'px; display: block; text-indent: 0px; transform: rotateY(0deg); left: '+ (4+(13*index)) +'px" data-card="'+ card +'"></div>';
+}
+
+function calcOffset(card){
+    var x = -949, y = 0; // Back of cards
+    if (card != "back" && card != "XX") {
+        var suits = { 'c': 0, 's': 1, 'h': 2, 'd': 3 }; // Order of the suits in the sprites file
+        x = -(getCardValue(card) - 1) * 73;
+        y = -suits[getCardSuit(card)] * 98 ;
+    }
+    return { x: x, y: y};
 }
