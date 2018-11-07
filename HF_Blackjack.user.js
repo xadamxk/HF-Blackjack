@@ -2,7 +2,7 @@
 // @name          HF BlackJack
 // @author        xadamxk
 // @namespace     https://github.com/xadamxk/HF-Scripts
-// @version       1.1.1
+// @version       1.1.2
 // @description   Improves your blackjack experience
 // @require       https://code.jquery.com/jquery-3.1.1.js
 // @match         *://hackforums.net/blackjack.php
@@ -15,6 +15,7 @@
 // @grant         GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
+// version 1.1.2: Updated Your/Dealer's hand and totals when game is over
 // version 1.1.1: Fixed throwing exceptions on Lose, Win, and Surrender
 // version 1.1.0: Added card hand, probability, best option, and result to UI
 // version 1.0.3: Added connect meta tag to mitigate CORS permissions
@@ -87,9 +88,14 @@ function ajaxPostRequest(url, data, cont){
             async:false,
             success: function(data) {
                 var jsonObj = jQuery.parseJSON(data);
-                //console.log(jsonObj);
                 if (jsonObj.balance){
                     updatenewBytes(jsonObj);
+                    // Update dealer's ahnd
+                    setDealerHand(parseHFDealerHand(jsonObj));
+                    // Update your hands
+                    setYourHand(jsonObj.data.hand1.hand_cards);
+                    // Update your hand total
+                    updateYourHandTotal(jsonObj.data.hand1.hand_value);
                 }
                 // HF Response
                 if (jsonObj.balance && cont){
@@ -157,7 +163,7 @@ function crossOriginPostRequest(url, data){
             setHandResult(jsonObj.best);
             setOddsDisplay(getActionOdds(jsonObj));
             // Set hand total value
-            $("#playerHand1").find(".cardsValueSign").attr("style","display:").text(jsonObj.sum.replace(/\D/g,''));
+            updateYourHandTotal(jsonObj.sum);
             // Desired Action - On HF
             if (jsonObj.best == "stand"){
                 ajaxPostRequest(hfActionStandURL, generateHFRawData(), false);
@@ -174,6 +180,10 @@ function crossOriginPostRequest(url, data){
             }
         }
     } );
+}
+
+function updateYourHandTotal(sum){
+    $("#playerHand1").find(".cardsValueSign").attr("style","display:").text(sum.replace(/\D/g,''));
 }
 
 function initialOriginalBytes(){
@@ -251,6 +261,16 @@ function setYourHand(array){
     }
 }
 
+function parseHFDealerHand(jsonObj){
+    setDealerHandTotal(jsonObj);
+    var unparsedDealerHand = jsonObj.data.dealer.hand_cards;
+    var handArray = [];
+    Object.keys(unparsedDealerHand).forEach(function (key) {
+        handArray[key] = unparsedDealerHand[key];
+    });
+    return handArray;
+}
+
 function setDealerHand(array){
     $("#dealerHand").find(".cardsContainer").empty();
     // Set hand - cards
@@ -277,6 +297,10 @@ function generateRawData(json){
     + "&lateSurrender=" + lateSurrender;
 
     return rawDataString;
+}
+
+function setDealerHandTotal(jsonObj){
+    $("#dealerHand").find(".cardsValueSign").attr("style","display:").text(jsonObj.data.dealer.hand_value);
 }
 
 function setWagerTotal(){
