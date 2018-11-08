@@ -215,8 +215,8 @@ function initialStats() {
 
     $("#PageContainer").parent().css("width", "800px");
     $("#PageContainer").parent().after($("<td>").addClass("trow1")
-        .append($("<div>")
-            .append($("<div>").attr("id", "hfbjStatsContainer").css("height", $("#PageContainerInner").css("height")))));
+        .append($("<div>").css("height", $("#PageContainerInner").css("height"))
+            .append($("<div>").attr("id", "hfbjStatsContainer"))));
     $('td:contains("This blackjack table uses HF Bytes points which is our internal rewards system.")').attr("colspan", "2");
 
     $("#hfbjStatsContainer").append($("<span>").attr("id", "currentBalanceLabel").text("Credits: ").css(tableCSS))
@@ -254,15 +254,18 @@ function initialStats() {
     $("#hfbjStatsContainer").append("<br><br>");
 
     // History log
-    const tableAttributes = { "border": "0", "cellspacing": "0", "cellpadding": "5", "class": "tborder" };
-    const tbodyCSS = { "display": "block", "overflow": "auto", "width": "100%" };
-    const displayBlockCSS = { "display": "block" };
+    const tableAttributes = { "border": "0", "cellspacing": "0", "cellpadding": "5", "class": "tborder", "id": "historyTable" };
+    const tbodyCSS = {
+        "overflow-y": "auto",
+        "overflow-x": "hidden !important", "display": "block", "height": "250px"
+    };
+    const trCSS = {};
     $("#hfbjStatsContainer").after($("<table>").attr(tableAttributes)
-        .append($("<tbody>").attr("id", "historyTable").css(tbodyCSS)
-            .append($("<tr>").css(displayBlockCSS)
+        .append($("<tbody>").attr("id", "historyTabletbody").css(tbodyCSS)
+            .append($("<tr>").css(trCSS)
                 .append($("<td>").addClass("thead").attr("colspan", "4")
                     .append($("<strong>").text("HF BlackJack Bot History"))))
-            .append($("<tr>").css(displayBlockCSS)
+            .append($("<tr>").css(trCSS)
                 .append($("<td>").addClass("tcat").attr("colspan", "1")
                     .append($("<strong>").text("Result")))
                 .append($("<td>").addClass("tcat").attr("colspan", "1")
@@ -274,26 +277,30 @@ function initialStats() {
             )
         )
     );
+    updateHistoryTable();
+}
+
+function updateHistoryTable() {
     if (HFBJ.logs.length > 0) {
+        const trCSS = {};
+        const tdRightAlignAttribute = { "align": "right" };
         const dateFormat = {
             day: '2-digit', month: '2-digit', year: '2-digit',
             hour: '2-digit', minute: '2-digit'
         };
-        $.each(HFBJ.logs, function (index, value) {
-            //
-            $("#historyTable").append($("<tr>").css(displayBlockCSS)
+        $.each(HFBJ.logs.reverse(), function (index, value) {
+            $("#historyTabletbody").append($("<tr>").css(trCSS)
                 .append($("<td>").addClass("trow1").attr("colspan", "1")
-                    .append($("<strong>").text(value.Result)))
+                    .append($("<strong>").text(value.Result).css("color",getResultColor(value.Result))))
                 .append($("<td>").addClass("trow1").attr("colspan", "1")
                     .append($("<strong>").text(new Date(value.Date).toLocaleTimeString([], dateFormat))))
-                .append($("<td>").addClass("trow1").attr("colspan", "1")
+                .append($("<td>").addClass("trow1").attr("colspan", "1").attr(tdRightAlignAttribute)
                     .append($("<strong>").text(value.AmountWagered)))
-                .append($("<td>").addClass("trow1").attr("colspan", "1")
-                    .append($("<strong>").text(value.AmountWon)))
+                .append($("<td>").addClass("trow1").attr("colspan", "1").attr(tdRightAlignAttribute)
+                    .append($("<strong>").text(value.AmountWon).css("color", getAmountColor(value.AmountWon))))
             )
         });
     }
-
 }
 
 function clearStats() {
@@ -332,6 +339,26 @@ function getAmountColor(amount) {
         color = "#00B500";
     } else if (amount < 0) {
         color = "#FF2121";
+    }
+    return color;
+}
+
+function getResultColor(result) {
+    var color = "#C3C3C3";
+    switch (result) {
+        case "WIN": color = "#C5B358";
+            break;
+        case "WIN-BLACKJACK": color = "#C5B358";
+            break;
+        case "TIE": color = "#586ac5";
+            break;
+        case "FOLD": color = "#ff1919";
+            break;
+        case "LOSE": color = "#ff1919";
+            break;
+        case "SURRENDER": color = "#EEE9E9";
+            break;
+        default: color = "#949494";
     }
     return color;
 }
