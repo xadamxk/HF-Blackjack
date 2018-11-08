@@ -56,6 +56,7 @@ var origByteBalance;
 var currentBalance = Math.max(0, parseInt($("#balanceCounterBalance").text()));
 var newByteBalance;
 var HFBJ = localStorage.getItem('hf-bj');
+console.clear();
 initializeLogFromMemory(); // Init Log
 // Current Game Stats
 var isBotRunning = false;
@@ -79,10 +80,6 @@ $('strong:contains("Risk your Bytes for a chance to win more!")').parent().paren
 
 // Update original bytes
 initialStats();
-
-// Append start button
-// $('strong:contains("Risk your Bytes for a chance to win more!")')
-//     .after($("<button>").attr("id", "startBJBot").text("Start Bot").css("margin-left", "10px"));
 
 // Toggle Bot click event
 // TODO: Add logic for toggle
@@ -210,15 +207,15 @@ function updateYourHandTotal(sum) {
 }
 
 function initialStats() {
-    console.clear();
+    const buttonCSS = { "margin":"5px 5px" };
+    const hrAttribute = { "width":"175px", "align":"left"};
+    const centerCSS = {"display":"flex","justify-content":"center"};
+    const tableCSS = { "display":"inline-block", "width": "175px", "text-align": "left" };
     overallTotalNet = (HFBJ.totalWon - HFBJ.totalBet) + HFBJ.totalWon;
-
-    var buttonCSS = { "margin":"5px 5px" };
-    var hrAttribute = { "width":"175px", "align":"left"};
-    var centerCSS = {"display":"flex","justify-content":"center"};
-    var tableCSS = { "display":"inline-block", "width": "175px", "text-align": "left" };
+    
     $("#PageContainer").parent().css("width", "800px");
-    $("#PageContainer").parent().after($("<td>").append($("<div>").attr("id", "hfbjStatsContainer")));
+    $("#PageContainer").parent().after($("<td>").addClass("trow1").append($("<div>").attr("id", "hfbjStatsContainer")));
+    $('td:contains("This blackjack table uses HF Bytes points which is our internal rewards system.")').attr("colspan","2");
 
     $("#hfbjStatsContainer").append($("<span>").attr("id", "currentBalanceLabel").text("Credits: ").css(tableCSS))
         .append($("<span>").attr("id", "currentBalance").text(currentBalance)).append("<br>");
@@ -270,7 +267,7 @@ function clearStats() {
 
 function updateStats(clearValues) {
     if (!clearValues){
-        sessionNet = sessionTotalWon - sessionTotalBet;
+        sessionNet = (sessionTotalWon - sessionTotalBet) + sessionTotalWon;
         overallTotalNet = (HFBJ.totalWon - HFBJ.totalBet) + HFBJ.totalWon;
     }
     // Update table
@@ -452,7 +449,7 @@ function setGameResult(result) {
     if (bytesGained > 0) {
         sessionTotalWon += bytesGained;
     }
-    sessionNet = sessionTotalWon - sessionTotalBet;
+    sessionNet = (sessionTotalWon - sessionTotalBet) + sessionTotalWon;
     // Overall
     overallTotalGames++
     HFBJ.totalGames = overallTotalGames;
@@ -516,5 +513,6 @@ function initializeLogFromMemory() {
         }
     } else {
         HFBJ = JSON.parse(HFBJ);
+        console.log(HFBJ);
     }
 }
