@@ -207,15 +207,17 @@ function updateYourHandTotal(sum) {
 }
 
 function initialStats() {
-    const buttonCSS = { "margin":"5px 5px" };
-    const hrAttribute = { "width":"175px", "align":"left"};
-    const centerCSS = {"display":"flex","justify-content":"center"};
-    const tableCSS = { "display":"inline-block", "width": "175px", "text-align": "left" };
+    const buttonCSS = { "margin": "5px 5px" };
+    const hrAttribute = { "width": "175px", "align": "left" };
+    const centerCSS = { "display": "flex", "justify-content": "center" };
+    const tableCSS = { "display": "inline-block", "width": "175px", "text-align": "left" };
     overallTotalNet = (HFBJ.totalWon - HFBJ.totalBet) + HFBJ.totalWon;
-    
+
     $("#PageContainer").parent().css("width", "800px");
-    $("#PageContainer").parent().after($("<td>").addClass("trow1").append($("<div>").attr("id", "hfbjStatsContainer")));
-    $('td:contains("This blackjack table uses HF Bytes points which is our internal rewards system.")').attr("colspan","2");
+    $("#PageContainer").parent().after($("<td>").addClass("trow1")
+        .append($("<div>")
+            .append($("<div>").attr("id", "hfbjStatsContainer").css("height", $("#PageContainerInner").css("height")))));
+    $('td:contains("This blackjack table uses HF Bytes points which is our internal rewards system.")').attr("colspan", "2");
 
     $("#hfbjStatsContainer").append($("<span>").attr("id", "currentBalanceLabel").text("Credits: ").css(tableCSS))
         .append($("<span>").attr("id", "currentBalance").text(currentBalance)).append("<br>");
@@ -231,9 +233,9 @@ function initialStats() {
     $("#hfbjStatsContainer").append($("<span>").attr("id", "sessionTotalBetLabel").text("Total Bet (Session): ").css(tableCSS))
         .append($("<span>").attr("id", "sessionTotalBet").text(sessionTotalBet)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "sessionTotalWonLabel").text("Total Won (Session): ").css(tableCSS))
-        .append($("<span>").attr("id", "sessionTotalWon").css("color",getAmountColor(sessionTotalWon)).text(sessionTotalWon)).append("<br>");
+        .append($("<span>").attr("id", "sessionTotalWon").css("color", getAmountColor(sessionTotalWon)).text(sessionTotalWon)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "sessionNetLabel").text("Net Gain (Session): ").css(tableCSS))
-        .append($("<span>").attr("id", "sessionNet").css("color",getAmountColor(sessionNet)).text(sessionNet)).append("<br>");
+        .append($("<span>").attr("id", "sessionNet").css("color", getAmountColor(sessionNet)).text(sessionNet)).append("<br>");
     // Overall
     $("#hfbjStatsContainer").append($("<hr>").attr(hrAttribute));
     $("#hfbjStatsContainer").append($("<b>").attr("id", "overallLabel").text("Overall").css(tableCSS)).append("<br>");
@@ -242,14 +244,56 @@ function initialStats() {
     $("#hfbjStatsContainer").append($("<span>").attr("id", "overallTotalBetLabel").text("Total Bet (Overall): ").css(tableCSS))
         .append($("<span>").attr("id", "overallTotalBet").text(overallTotalBet)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "overallTotalWonLabel").text("Total Won (Overall): ").css(tableCSS))
-        .append($("<span>").attr("id", "overallTotalWon").css("color",getAmountColor(overallTotalWon)).text(overallTotalWon)).append("<br>");
+        .append($("<span>").attr("id", "overallTotalWon").css("color", getAmountColor(overallTotalWon)).text(overallTotalWon)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "overallTotalNetLabel").text("Net Gain (Overall): ").css(tableCSS))
-        .append($("<span>").attr("id", "overallTotalNet").css("color",getAmountColor(overallTotalNet)).text(overallTotalNet)).append("<br>");
+        .append($("<span>").attr("id", "overallTotalNet").css("color", getAmountColor(overallTotalNet)).text(overallTotalNet)).append("<br>");
 
-        // 
-    $("#hfbjStatsContainer").append($("<div>").css({"padding-left":"40px"}).append($("<button>").attr("id", "toggleBJBot").text("Start Bot").css(buttonCSS))
+    // Buttons
+    $("#hfbjStatsContainer").append($("<div>").css({ "padding-left": "40px" }).append($("<button>").attr("id", "toggleBJBot").text("Start Bot").css(buttonCSS))
         .append($("<button>").attr("id", "setBJBotMemory").text("Reset Logs").css(buttonCSS)));
-    $("#hfbjStatsContainer").append("<br>");
+    $("#hfbjStatsContainer").append("<br><br>");
+
+    // History log
+    const tableAttributes = { "border": "0", "cellspacing": "0", "cellpadding": "5", "class": "tborder" };
+    const tbodyCSS = { "display": "block", "overflow": "auto", "width": "100%" };
+    const displayBlockCSS = { "display": "block" };
+    $("#hfbjStatsContainer").after($("<table>").attr(tableAttributes)
+        .append($("<tbody>").attr("id", "historyTable").css(tbodyCSS)
+            .append($("<tr>").css(displayBlockCSS)
+                .append($("<td>").addClass("thead").attr("colspan", "4")
+                    .append($("<strong>").text("HF BlackJack Bot History"))))
+            .append($("<tr>").css(displayBlockCSS)
+                .append($("<td>").addClass("tcat").attr("colspan", "1")
+                    .append($("<strong>").text("Result")))
+                .append($("<td>").addClass("tcat").attr("colspan", "1")
+                    .append($("<strong>").text("Date")))
+                .append($("<td>").addClass("tcat").attr("colspan", "1")
+                    .append($("<strong>").text("Wagered")))
+                .append($("<td>").addClass("tcat").attr("colspan", "1")
+                    .append($("<strong>").text("Received")))
+            )
+        )
+    );
+    if (HFBJ.logs.length > 0) {
+        const dateFormat = {
+            day: '2-digit', month: '2-digit', year: '2-digit',
+            hour: '2-digit', minute: '2-digit'
+        };
+        $.each(HFBJ.logs, function (index, value) {
+            //
+            $("#historyTable").append($("<tr>").css(displayBlockCSS)
+                .append($("<td>").addClass("trow1").attr("colspan", "1")
+                    .append($("<strong>").text(value.Result)))
+                .append($("<td>").addClass("trow1").attr("colspan", "1")
+                    .append($("<strong>").text(new Date(value.Date).toLocaleTimeString([], dateFormat))))
+                .append($("<td>").addClass("trow1").attr("colspan", "1")
+                    .append($("<strong>").text(value.AmountWagered)))
+                .append($("<td>").addClass("trow1").attr("colspan", "1")
+                    .append($("<strong>").text(value.AmountWon)))
+            )
+        });
+    }
+
 }
 
 function clearStats() {
@@ -266,7 +310,7 @@ function clearStats() {
 }
 
 function updateStats(clearValues) {
-    if (!clearValues){
+    if (!clearValues) {
         sessionNet = (sessionTotalWon - sessionTotalBet) + sessionTotalWon;
         overallTotalNet = (HFBJ.totalWon - HFBJ.totalBet) + HFBJ.totalWon;
     }
@@ -274,19 +318,19 @@ function updateStats(clearValues) {
     $("#latestWinAmt").text(latestWinAmt);
     $("#sessionTotalGames").text(sessionTotalGames);
     $("#sessionTotalBet").text(sessionTotalBet);
-    $("#sessionTotalWon").text(sessionTotalWon).css("color",getAmountColor(sessionTotalWon));
-    $("#sessionNet").text(sessionNet).css("color",getAmountColor(sessionNet));
+    $("#sessionTotalWon").text(sessionTotalWon).css("color", getAmountColor(sessionTotalWon));
+    $("#sessionNet").text(sessionNet).css("color", getAmountColor(sessionNet));
     $("#overallTotalGames").text(overallTotalGames);
     $("#overallTotalBet").text(overallTotalBet);
-    $("#overallTotalWon").text(overallTotalWon).css("color",getAmountColor(overallTotalWon));
-    $("#overallTotalNet").text(overallTotalNet).css("color",getAmountColor(overallTotalNet));
+    $("#overallTotalWon").text(overallTotalWon).css("color", getAmountColor(overallTotalWon));
+    $("#overallTotalNet").text(overallTotalNet).css("color", getAmountColor(overallTotalNet));
 }
 
-function getAmountColor(amount){
+function getAmountColor(amount) {
     var color = "#C3C3C3";
-    if(amount > 0) {
+    if (amount > 0) {
         color = "#00B500";
-    } else if(amount < 0) {
+    } else if (amount < 0) {
         color = "#FF2121";
     }
     return color;
@@ -418,29 +462,29 @@ function setGameResult(result) {
     const surrenderMultiplier = -.5;
     switch (result) {
         case "WIN-BLACKJACK":
-        bytesGained = wagerAmt * winBlackJackMultiplier;
+            bytesGained = wagerAmt * winBlackJackMultiplier;
             break;
         case "WIN":
-        bytesGained = wagerAmt * winMultiplier;
+            bytesGained = wagerAmt * winMultiplier;
             break;
         case "TIE":
-        bytesGained = wagerAmt * tieMultiplier;
+            bytesGained = wagerAmt * tieMultiplier;
             break;
         case "FOLD":
-        bytesGained = wagerAmt * loseMultiplier;
+            bytesGained = wagerAmt * loseMultiplier;
             break;
         case "LOSE":
-        bytesGained = wagerAmt * loseMultiplier;
+            bytesGained = wagerAmt * loseMultiplier;
             break;
         case "SURRENDER":
-        bytesGained = wagerAmt * surrenderMultiplier;
+            bytesGained = wagerAmt * surrenderMultiplier;
             break;
         default:
-        bytesGained = 0;
+            bytesGained = 0;
     }
     // Add log entry
     var dateTimeNow = new Date().getTime();
-    var logEntry = {"Date":dateTimeNow,"Result":result,"AmountWon":bytesGained,"AmountWagered":wagerAmt};
+    var logEntry = { "Date": dateTimeNow, "Result": result, "AmountWon": bytesGained, "AmountWagered": wagerAmt };
     HFBJ.logs.push(logEntry);
     // Session
     latestWinAmt = bytesGained;
@@ -453,7 +497,7 @@ function setGameResult(result) {
     // Overall
     overallTotalGames++
     HFBJ.totalGames = overallTotalGames;
-    overallTotalBet +=wagerAmt
+    overallTotalBet += wagerAmt
     HFBJ.totalBet = overallTotalBet;;
 
     if (bytesGained > 0) {
