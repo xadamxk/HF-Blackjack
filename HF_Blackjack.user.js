@@ -56,6 +56,7 @@ var origByteBalance;
 var currentBalance = Math.max(0, parseInt($("#balanceCounterBalance").text()));
 var newByteBalance;
 var HFBJ = localStorage.getItem('hf-bj');
+initializeLogFromMemory(); // Init Log
 // Current Game Stats
 var isBotRunning = false;
 var latestWinAmt = 0;// TODO: Get value from local storage
@@ -63,14 +64,12 @@ var sessionTotalGames = 0;
 var sessionTotalBet = 0;
 var sessionTotalWon = 0;
 var sessionNet = 0;
-var overallTotalGames = 0; // TODO: Get value from local storage
-var overallTotalBet = 0; // TODO: 
-var overallTotalWon = 0; // TODO: 
-var overallTotalNet = 0; // TODO: 
+var overallTotalGames = HFBJ.totalGames;
+var overallTotalBet = HFBJ.totalBet;
+var overallTotalWon = HFBJ.totalWon;
+var overallTotalNet = HFBJ.totalWon - HFBJ.totalBet;
 
 
-// Init Log
-initializeLogFromMemory();
 
 // Append warning
 $('strong:contains("Risk your Bytes for a chance to win more!")').parent().parent()
@@ -85,11 +84,19 @@ initialStats();
 // $('strong:contains("Risk your Bytes for a chance to win more!")')
 //     .after($("<button>").attr("id", "startBJBot").text("Start Bot").css("margin-left", "10px"));
 
-// Button click event
+// Toggle Bot click event
+// TODO: Add logic for toggle
 $("#toggleBJBot").click(function () {
     if (confirm("Are you sure you want to start the script?")) {
         setWagerTotal();
         ajaxPostRequest(hfActionDealURL, dealHandBody, true);
+    }
+});
+
+$("#setBJBotMemory").click(function () {
+    if (confirm("Are you sure you want to clear all log history?")) {
+        localStorage.removeItem('hf-bj');
+        clearStats();
     }
 });
 
@@ -204,11 +211,12 @@ function updateYourHandTotal(sum) {
 
 function initialStats() {
     console.clear();
-    overallTotalNet = HFBJ.totalWon - HFBJ.totalBet;
+    overallTotalNet = (HFBJ.totalWon - HFBJ.totalBet) + HFBJ.totalWon;
 
-    var buttonCSS = { "margin": "5px 5px" };
+    var buttonCSS = { "margin":"5px 5px" };
+    var hrAttribute = { "width":"175px", "align":"left"};
     var centerCSS = {"display":"flex","justify-content":"center"};
-    var tableCSS = { "display": "inline-block", "width": "175px", "text-align": "left" };
+    var tableCSS = { "display":"inline-block", "width": "175px", "text-align": "left" };
     $("#PageContainer").parent().css("width", "800px");
     $("#PageContainer").parent().after($("<td>").append($("<div>").attr("id", "hfbjStatsContainer")));
 
@@ -218,7 +226,9 @@ function initialStats() {
         .append($("<span>").attr("id", "wagerAmt").text(wagerAmt)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "latestWinAmtLabel").text("Latest Win: ").css(tableCSS))
         .append($("<span>").attr("id", "latestWinAmt").text(latestWinAmt)).append("<br>");
-    $("#hfbjStatsContainer").append("<br>");
+    // Session
+    $("#hfbjStatsContainer").append($("<hr>").attr(hrAttribute));
+    $("#hfbjStatsContainer").append($("<b>").attr("id", "sessionLabel").text("Session").css(tableCSS)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "sessionTotalGamesLabel").text("Games Played (Session): ").css(tableCSS))
         .append($("<span>").attr("id", "sessionTotalGames").text(sessionTotalGames)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "sessionTotalBetLabel").text("Total Bet (Session): ").css(tableCSS))
@@ -227,7 +237,9 @@ function initialStats() {
         .append($("<span>").attr("id", "sessionTotalWon").css("color",getAmountColor(sessionTotalWon)).text(sessionTotalWon)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "sessionNetLabel").text("Net Gain (Session): ").css(tableCSS))
         .append($("<span>").attr("id", "sessionNet").css("color",getAmountColor(sessionNet)).text(sessionNet)).append("<br>");
-    $("#hfbjStatsContainer").append("<br>");
+    // Overall
+    $("#hfbjStatsContainer").append($("<hr>").attr(hrAttribute));
+    $("#hfbjStatsContainer").append($("<b>").attr("id", "overallLabel").text("Overall").css(tableCSS)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "overallTotalGamesLabel").text("Games Played (Overall): ").css(tableCSS))
         .append($("<span>").attr("id", "overallTotalGames").text(overallTotalGames)).append("<br>");
     $("#hfbjStatsContainer").append($("<span>").attr("id", "overallTotalBetLabel").text("Total Bet (Overall): ").css(tableCSS))
@@ -243,9 +255,34 @@ function initialStats() {
     $("#hfbjStatsContainer").append("<br>");
 }
 
-function updateStats() {
-    sessionNet = sessionTotalWon - sessionTotalBet;
-    overallTotalNet = HFBJ.totalWon - HFBJ.totalBet;
+function clearStats() {
+    latestWinAmt = 0;
+    sessionTotalGames = 0;
+    sessionTotalBet = 0;
+    sessionTotalWon = 0;
+    sessionNet = 0;
+    overallTotalGames = 0;
+    overallTotalBet = 0;
+    overallTotalWon = 0;
+    overallTotalNet = 0;
+    updateStats(true);
+}
+
+function updateStats(clearValues) {
+    if (!clearValues){
+        sessionNet = sessionTotalWon - sessionTotalBet;
+        overallTotalNet = (HFBJ.totalWon - HFBJ.totalBet) + HFBJ.totalWon;
+    }
+    // Update table
+    $("#latestWinAmt").text(latestWinAmt);
+    $("#sessionTotalGames").text(sessionTotalGames);
+    $("#sessionTotalBet").text(sessionTotalBet);
+    $("#sessionTotalWon").text(sessionTotalWon).css("color",getAmountColor(sessionTotalWon));
+    $("#sessionNet").text(sessionNet).css("color",getAmountColor(sessionNet));
+    $("#overallTotalGames").text(overallTotalGames);
+    $("#overallTotalBet").text(overallTotalBet);
+    $("#overallTotalWon").text(overallTotalWon).css("color",getAmountColor(overallTotalWon));
+    $("#overallTotalNet").text(overallTotalNet).css("color",getAmountColor(overallTotalNet));
 }
 
 function getAmountColor(amount){
@@ -259,7 +296,7 @@ function getAmountColor(amount){
 }
 
 function updatenewBytes(jsonObj) {
-    $("#newBytesTotal").text(jsonObj.balance);
+    $("#currentBalance").text(jsonObj.balance);
 }
 
 function getActionOdds(jsonObj) {
@@ -376,28 +413,59 @@ function setWagerTotal() {
 
 function setGameResult(result) {
     $("#playerHand1").find(".handOutcomeSign").attr("style", "display:").text(result);
-    var gameStatus;
+    var bytesGained;
+    const winBlackJackMultiplier = 2.5;
+    const winMultiplier = 1;
+    const tieMultiplier = 0;
+    const loseMultiplier = -1;
+    const surrenderMultiplier = -.5;
     switch (result) {
         case "WIN-BLACKJACK":
+        bytesGained = wagerAmt * winBlackJackMultiplier;
             break;
         case "WIN":
-            //
+        bytesGained = wagerAmt * winMultiplier;
             break;
         case "TIE":
-            //
+        bytesGained = wagerAmt * tieMultiplier;
             break;
         case "FOLD":
-            //
+        bytesGained = wagerAmt * loseMultiplier;
             break;
         case "LOSE":
-            //
+        bytesGained = wagerAmt * loseMultiplier;
             break;
         case "SURRENDER":
-            //
+        bytesGained = wagerAmt * surrenderMultiplier;
             break;
         default:
-        //
+        bytesGained = 0;
     }
+    // Add log entry
+    var dateTimeNow = new Date().getTime();
+    var logEntry = {"Date":dateTimeNow,"Result":result,"AmountWon":bytesGained,"AmountWagered":wagerAmt};
+    HFBJ.logs.push(logEntry);
+    // Session
+    latestWinAmt = bytesGained;
+    sessionTotalGames++;
+    sessionTotalBet += wagerAmt;
+    if (bytesGained > 0) {
+        sessionTotalWon += bytesGained;
+    }
+    sessionNet = sessionTotalWon - sessionTotalBet;
+    // Overall
+    overallTotalGames++
+    HFBJ.totalGames = overallTotalGames;
+    overallTotalBet +=wagerAmt
+    HFBJ.totalBet = overallTotalBet;;
+
+    if (bytesGained > 0) {
+        overallTotalWon += bytesGained
+        HFBJ.totalWon = overallTotalWon;
+    }
+    overallTotalNet = (HFBJ.totalWon - HFBJ.totalBet) + HFBJ.totalWon;
+    localStorage.setItem('hf-bj', JSON.stringify(HFBJ));
+    updateStats(false);
 }
 
 function setHandResult(result) {
