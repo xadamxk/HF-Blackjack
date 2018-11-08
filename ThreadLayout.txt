@@ -1,0 +1,57 @@
+A month ago, [url=https://hackforums.net/member.php?action=profile&uid=1][b][color=#9999ff]Omniscient[/color][/b][/url] announced [url=https://hackforums.net/showthread.php?tid=5881225][b][News] Bytes Blackjack[/b][/url] that allowed users to use their bytes and wage against the HF house. A few days ago, this script popped up ([url=https://hackforums.net/showthread.php?tid=5901348][b]HF Blackjack Script[/b][/url]) and I wanted to release a safe alternative, since downloading & running user's tools locally can be very dangerous.
+
+[hr]
+[align=center][img]https://hackforums.net/uploads/awards/dice.png[/img][url=https://hackforums.net/showthread.php?tid=5900273&pid=57825542#pid57825542][color=red]The odds of winning the Dicey award are 1 in 10,000[/color][/url][color=red][color=red][img]https://hackforums.net/uploads/awards/dice.png[/img][/color]
+[url=https://hackforums.net/blackjack.php]Click here to navigate to the blackjack page.[/url][/color][/align]
+[hr]
+
+[align=center]
+[img]https://github.com/xadamxk/HF-Blackjack/blob/master/screenshot3.PNG?raw=true[/img]
+
+[color=#ffffff]Activate the script by clicking the "Start Bot" button[/color]
+
+[url=https://tampermonkey.net/][img]https://github.com/xadamxk/HF-Userscripts/blob/master/DLTM01.png?raw=true[/img][/url]
+[hr]
+[url=https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js][img]https://github.com/xadamxk/HF-Userscripts/blob/master/DLUS02.png?raw=true[/img][/url]
+
+[sp=Click here for script logic table][img]https://raw.githubusercontent.com/xadamxk/HF-Blackjack/master/strategychart.PNG[/img][/sp]
+[/align]
+
+[quote='#Skyline‌' pid='57835888' dateline='1541559577']
+I now have dice award cuz your script. Thanks sir.
+[/quote]
+[quote='R4A1' pid='57824712' dateline='1541384994']
+Big vouch, just started using and it works just as described thank you very much OP.
+[/quote]
+[quote='Kawen' pid='57834908' dateline='1541545598']
+I played about 10 minutes with this toy and I gained 10k of profit. Good job <3
+[/quote]
+
+
+
+[color=white]Enjoy!
+
+BTW, the console (F12 -> Console) outputs the odds and various stats for each game.
+The console will be cleared after confirmation between games.[/color]
+[hr]
+
+[sp=Screenshots]
+[img=334x464]https://github.com/xadamxk/HF-Blackjack/blob/master/example.gif?raw=true[/img]
+
+[img=292x162]https://github.com/xadamxk/HF-Blackjack/blob/master/screenshot1.PNG?raw=true[/img]
+
+[img=292x137]https://github.com/xadamxk/HF-Blackjack/blob/master/screenshot2.PNG?raw=true[/img]
+[/sp]
+
+[sp=Did you get a permission alert? Click here for more information]
+
+In order to use the tool I used that calculates the best decision, I have to send requests to the website.
+To send a request from hack forums, I need permission to do that, so it is clear I am not trying to steal any of your information.
+
+I followed the proper syntax for Tampermonkey, so users using newer versions will not see this, but if you are on an old version you might see the following popup on first use.
+No worries, all you have to do is click [u]Always allow domain[/u].
+[img]https://github.com/xadamxk/HF-Blackjack/blob/master/tampermonkey_confirm.PNG?raw=true[/img]
+
+To read more about the [url=https://tampermonkey.net/documentation.php#_connect]@connect tag, click here[/url].
+[/sp]
+[hr]
