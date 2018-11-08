@@ -2,7 +2,7 @@
 // @name          HF BlackJack
 // @author        xadamxk
 // @namespace     https://github.com/xadamxk/HF-Scripts
-// @version       1.1.2
+// @version       1.2.0
 // @description   Improves your blackjack experience
 // @require       https://code.jquery.com/jquery-3.1.1.js
 // @match         *://hackforums.net/blackjack.php
@@ -15,6 +15,7 @@
 // @grant         GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
+// version 1.2.0: Implemented BlackJack Stats & History tables
 // version 1.1.2: Updated Your/Dealer's hand and totals when game is over
 // version 1.1.1: Fixed throwing exceptions on Lose, Win, and Surrender
 // version 1.1.0: Added card hand, probability, best option, and result to UI
