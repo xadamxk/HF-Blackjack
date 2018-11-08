@@ -2,7 +2,7 @@
 // @name          HF BlackJack
 // @author        xadamxk
 // @namespace     https://github.com/xadamxk/HF-Scripts
-// @version       1.2.0
+// @version       1.2.1
 // @description   Improves your blackjack experience
 // @require       https://code.jquery.com/jquery-3.1.1.js
 // @match         *://hackforums.net/blackjack.php
@@ -15,6 +15,7 @@
 // @grant         GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
+// version 1.2.1: Fixed promptless gaming bug
 // version 1.2.0: Implemented BlackJack Stats & History tables
 // version 1.1.2: Updated Your/Dealer's hand and totals when game is over
 // version 1.1.1: Fixed throwing exceptions on Lose, Win, and Surrender
@@ -53,6 +54,7 @@ const lateSurrender = 1;
 var dealResponse;
 var gameID;
 var actionID;
+var gamesPlayed = 0;
 var origByteBalance;
 var currentBalance = Math.max(0, parseInt($("#balanceCounterBalance").text()));
 var newByteBalance;
@@ -161,6 +163,7 @@ function startNextGame() {
                 ajaxPostRequest(hfActionDealURL, dealHandBody, true);
             } else {
                 alert("DONE RUNNING!");
+                gamesPlayed = 0;
             }
         }
     }, 1000);
