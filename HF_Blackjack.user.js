@@ -2,7 +2,7 @@
 // @name          HF BlackJack
 // @author        xadamxk
 // @namespace     https://github.com/xadamxk/HF-Scripts
-// @version       1.2.1
+// @version       1.2.2
 // @description   Improves your blackjack experience
 // @require       https://code.jquery.com/jquery-3.1.1.js
 // @match         *://hackforums.net/blackjack.php
@@ -15,6 +15,7 @@
 // @grant         GM_xmlhttpRequest
 // ==/UserScript==
 // ------------------------------ Change Log ----------------------------
+// version 1.2.2: Implemented Martingale strategy
 // version 1.2.1: Fixed promptless gaming bug
 // version 1.2.0: Implemented BlackJack Stats & History tables
 // version 1.1.2: Updated Your/Dealer's hand and totals when game is over
@@ -27,9 +28,11 @@
 // ------------------------------ Dev Notes -----------------------------
 // Split logic does not exist yet!
 // ------------------------------ SETTINGS ------------------------------
-const wagerAmt = 2; // must be divisible by increment of 2, 10, 25, or 50
+const initialWager = 2; // Must be greater than 2 and less than 500
 const confirmEachGame = true; // prompt for each new game (false for gamesPerSession)
-const gamesPerSession = 3; // how many games to play automatically
+const gamesPerSession = 5; // how many games to play automatically
+const useMartingaleStrat = false; // initial wager * multiplier on lose, reset after win
+const wagerMultiplier = 2.25; // Keep between 2-3 for consistent results
 // ------------------------------- Script -------------------------------
 /* ========== DO NOT CHANGE ANYTHING BELOW THIS LINE ========== */
 /* Global Constants */
@@ -41,7 +44,6 @@ const hfActionHitURL = "https://hackforums.net/blackjack/blackjack_action.php?ac
 const hfActionDoubleURL = "https://hackforums.net/blackjack/blackjack_action.php?action=double";
 const hfActionSplitURL = "https://hackforums.net/blackjack/blackjack_action.php?action=split";
 const hfActionSurrenderURL = "https://hackforums.net/blackjack/blackjack_action.php?action=surrender";
-const dealHandBody = "bet=" + wagerAmt + "&my_post_key=" + myPostKey;
 const numDecks = 4;
 const hitSoft17 = 1;
 const double = "all";
@@ -72,6 +74,8 @@ var overallTotalGames = HFBJ.totalGames;
 var overallTotalBet = HFBJ.totalBet;
 var overallTotalWon = HFBJ.totalWon;
 var overallTotalNet = HFBJ.totalWon - HFBJ.totalBet;
+var wagerAmt = initialWager;
+var dealHandBody = "bet=" + wagerAmt + "&my_post_key=" + myPostKey;
 
 
 
@@ -87,9 +91,16 @@ initialStats();
 // Toggle Bot click event
 // TODO: Add logic for toggle
 $("#toggleBJBot").click(function () {
-    if (confirm("Are you sure you want to start the script?")) {
-        setWagerTotal();
-        ajaxPostRequest(hfActionDealURL, dealHandBody, true);
+    if (!isBotRunning) {
+        isBotRunning = true;
+        $("#toggleBJBot").text("Stop Bot");
+        if (confirm("Are you sure you want to start the script?")) {
+            setWagerTotal();
+            ajaxPostRequest(hfActionDealURL, dealHandBody, true);
+        }
+    } else {
+        isBotRunning = false;
+        $("#toggleBJBot").text("Start Bot");
     }
 });
 
@@ -132,7 +143,7 @@ function ajaxPostRequest(url, data, cont) {
                         || getSingleGameResult(jsonObj) == "LOSE"
                         || getSingleGameResult(jsonObj) == "SURRENDER") {
                         setGameResult(getSingleGameResult(jsonObj));
-
+                        updateWagerAmount(jsonObj);
                         startNextGame();
                     } else {
                         crossOriginPostRequest(bjAdvisorURL, generateRawData(data));
@@ -140,7 +151,7 @@ function ajaxPostRequest(url, data, cont) {
                 } else {
                     console.log("Result: " + getSingleGameResult(jsonObj) + " (" + getSingleGamePayout(jsonObj) + ")");
                     setGameResult(getSingleGameResult(jsonObj));
-
+                    updateWagerAmount(jsonObj);
                     startNextGame();
                 }
 
@@ -150,23 +161,25 @@ function ajaxPostRequest(url, data, cont) {
 }
 
 function startNextGame() {
-    setTimeout(function () {
-        if (confirmEachGame) {
-            if (confirm("Play Again?")) {
-                console.clear();
-                ajaxPostRequest(hfActionDealURL, dealHandBody, true);
-            }
-        } else {
-            if (gamesPlayed < gamesPerSession) {
-                gamesPlayed++;
-                console.clear();
-                ajaxPostRequest(hfActionDealURL, dealHandBody, true);
+    if (isBotRunning) {
+        setTimeout(function () {
+            if (confirmEachGame) {
+                if (confirm("Play Again?")) {
+                    console.clear();
+                    ajaxPostRequest(hfActionDealURL, dealHandBody, true);
+                }
             } else {
-                alert("DONE RUNNING!");
-                gamesPlayed = 0;
+                if (gamesPlayed < gamesPerSession) {
+                    gamesPlayed++;
+                    console.clear();
+                    ajaxPostRequest(hfActionDealURL, dealHandBody, true);
+                } else {
+                    alert("DONE RUNNING!");
+                    gamesPlayed = 0;
+                }
             }
-        }
-    }, 1000);
+        }, 1000);
+    }
 }
 
 function crossOriginPostRequest(url, data) {
@@ -204,6 +217,24 @@ function crossOriginPostRequest(url, data) {
             }
         }
     });
+}
+
+function updateWagerAmount(jsonObj) {
+    if (useMartingaleStrat) {
+        if (jsonObj.data.outcome1 == "FOLD"
+            //|| jsonObj.data.outcome1 == "TIE"
+            || jsonObj.data.outcome1 == "LOSE"
+            //|| jsonObj.data.outcome1 == "SURRENDER"
+        ) {
+            // Increase
+            wagerAmt = wagerAmt * wagerMultiplier;
+        } else if (jsonObj.data.outcome1 == "WIN-BLACKJACK"
+            || jsonObj.data.outcome1 == "WIN") {
+            // Reset
+            wagerAmt = initialWager;
+        }
+    }
+    dealHandBody = "bet=" + wagerAmt + "&my_post_key=" + myPostKey;
 }
 
 function updateYourHandTotal(sum) {
@@ -347,6 +378,7 @@ function updateStats(clearValues) {
         overallTotalNet = (HFBJ.totalWon - HFBJ.totalBet) + HFBJ.totalWon;
     }
     // Update stats table
+    $("#wagerAmt").text(wagerAmt);
     $("#latestWinAmt").text(latestWinAmt);
     $("#sessionTotalGames").text(sessionTotalGames);
     $("#sessionTotalBet").text(sessionTotalBet);
