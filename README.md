@@ -1,7 +1,7 @@
 # HF-Blackjack
 Uses basic strategy table for blackjack on HF
 
-<h1><a align="center" href="https://github.com/xadamxk/HF-Blackjack/raw/master/HF_Blackjack.user.js">
+<h1><a align="center" href="https://github.com/xadamxk/HFGS">
     Deprecated! Please use HFGS
 </a>
     </h1>
